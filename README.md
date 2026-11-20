@@ -89,6 +89,60 @@ wget -4 --spider -T 10 -t 1 https://deb.debian.org/debian/dists/trixie/InRelease
 
 ![Маршруты Debian и HTTPS-проверка через NAT](screenshots/nat-routing-https.png)
 
+## SSH из Windows
+
+1. **В консоли Debian в VirtualBox** проверьте службу OpenSSH.
+
+   ```bash
+   systemctl status ssh --no-pager
+   ```
+
+   На стенде служба была запущена (`active (running)`), а её запуск при загрузке включён (`enabled`).
+
+2. **В терминале Windows** начните подключение через Host-only.
+
+   ```powershell
+   ssh labuser@192.168.56.101
+   ```
+
+3. **При первом запросе подтверждения ключа** оставьте терминал Windows открытым. На стенде SSH показал отпечаток `SHA256:…` ключа ED25519. В консоли Debian в VirtualBox получите отпечаток открытого ключа сервера.
+
+   ```bash
+   ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+4. Сравните два отпечатка. При совпадении введите `yes` в терминале Windows, затем пароль своей учётной записи Debian. Приглашение вида `labuser@debianlab:~$` подтверждает, что открылась оболочка Debian.
+
+На стенде вход с паролем прошёл, а отпечаток из Windows совпал с отпечатком из консоли ВМ. После восстановления NAT из Windows также проверил доступность `192.168.56.101:22`.
+
+### Межсетевой экран UFW
+
+Для команд в этом разделе нужна учётная запись с правами `sudo`. [Как настроить `sudo` через `visudo`](#права-sudo-через-visudo).
+
+В консоли VirtualBox установил UFW.
+
+```bash
+sudo apt install ufw
+```
+
+Перед добавлением правила проверил слушающие сокеты командой `sudo ss -lntup`. Процесс `sshd` слушал `22/tcp` на IPv4 и IPv6.
+
+![Слушающие сокеты Debian и порт SSH](screenshots/listening-ports.png)
+
+Добавил правило для подключения из Windows перед включением фильтра.
+
+```bash
+sudo ufw allow in on enp0s8 proto tcp from 192.168.56.1 to any port 22
+sudo ufw enable
+sudo ufw status verbose
+```
+
+UFW показал `Status: active`, запрет входящих и разрешение исходящих соединений по умолчанию. Правило `22/tcp on enp0s8` разрешает входящий SSH с IPv4-адреса Windows `192.168.56.1` через Host-only.
+
+![Активный UFW и правило SSH](screenshots/ufw-status.png)
+
+После включения UFW я открыл новый SSH-сеанс из Windows и успешно вошёл в Debian.
+
 ## Пользователи, группы и права
 
 Для примера создал группу `admin` и выделил ей общий каталог `/srv/admin`. Команды настройки выполняются под `root`.
@@ -135,58 +189,6 @@ sudo whoami
 ```
 
 Ожидаемый вывод — `root`.
-
-## SSH из Windows
-
-1. **В консоли Debian в VirtualBox** проверьте службу OpenSSH.
-
-   ```bash
-   systemctl status ssh --no-pager
-   ```
-
-   На стенде служба была запущена (`active (running)`), а её запуск при загрузке включён (`enabled`).
-
-2. **В терминале Windows** начните подключение через Host-only.
-
-   ```powershell
-   ssh labuser@192.168.56.101
-   ```
-
-3. **При первом запросе подтверждения ключа** оставьте терминал Windows открытым. На стенде SSH показал отпечаток `SHA256:…` ключа ED25519. В консоли Debian в VirtualBox получите отпечаток открытого ключа сервера.
-
-   ```bash
-   ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
-   ```
-
-4. Сравните два отпечатка. При совпадении введите `yes` в терминале Windows, затем пароль своей учётной записи Debian. Приглашение вида `labuser@debianlab:~$` подтверждает, что открылась оболочка Debian.
-
-На стенде вход с паролем прошёл, а отпечаток из Windows совпал с отпечатком из консоли ВМ. После восстановления NAT из Windows также проверил доступность `192.168.56.101:22`.
-
-### Межсетевой экран UFW
-
-В консоли VirtualBox установил UFW.
-
-```bash
-sudo apt install ufw
-```
-
-Перед добавлением правила проверил слушающие сокеты командой `sudo ss -lntup`. Процесс `sshd` слушал `22/tcp` на IPv4 и IPv6.
-
-![Слушающие сокеты Debian и порт SSH](screenshots/listening-ports.png)
-
-Добавил правило для подключения из Windows перед включением фильтра.
-
-```bash
-sudo ufw allow in on enp0s8 proto tcp from 192.168.56.1 to any port 22
-sudo ufw enable
-sudo ufw status verbose
-```
-
-UFW показал `Status: active`, запрет входящих и разрешение исходящих соединений по умолчанию. Правило `22/tcp on enp0s8` разрешает входящий SSH с IPv4-адреса Windows `192.168.56.1` через Host-only.
-
-![Активный UFW и правило SSH](screenshots/ufw-status.png)
-
-После включения UFW я открыл новый SSH-сеанс из Windows и успешно вошёл в Debian.
 
 ## Клавиши в терминале Debian
 
