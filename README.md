@@ -2,6 +2,8 @@
 
 Учебный стенд для администрирования Debian в VirtualBox. Я подключился к ВМ по SSH из Windows, проверил выход Debian в интернет и настроил доступ к общему каталогу через группу Linux.
 
+При повторении стенда замените `labuser` на имя своей учётной записи Debian в командах и в копии конфигурации SSH.
+
 ## Окружение
 
 | Параметр | На стенде |
@@ -18,24 +20,7 @@
 | 1, NAT | `enp0s3` | `10.0.2.15/24` | Выход в интернет через шлюз `10.0.2.2` |
 | 2, Host-only | `enp0s8` | `192.168.56.101/24` | Подключение по SSH из Windows с адреса `192.168.56.1` |
 
-Адреса и имена интерфейсов в командах относятся к этому стенду. `labuser` обозначает обычную учётную запись Debian.
-
-## SSH из Windows
-
-В Debian проверил службу OpenSSH и отпечаток открытого ключа сервера.
-
-```bash
-systemctl status ssh --no-pager
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
-```
-
-Служба `ssh` была запущена (`active (running)`), её запуск при загрузке включён (`enabled`). В Windows подключился по Host-only.
-
-```powershell
-ssh labuser@192.168.56.101
-```
-
-Вход с паролем прошёл. Отпечаток ED25519 из окна Windows совпал с отпечатком ключа в консоли ВМ.
+Адреса и имена интерфейсов в командах относятся к этому стенду.
 
 ## Диагностика NAT
 
@@ -104,7 +89,24 @@ sudo whoami
 
 Ожидаемый вывод — `root`.
 
-## Межсетевой экран UFW
+## SSH из Windows
+
+В Debian проверил службу OpenSSH и отпечаток открытого ключа сервера.
+
+```bash
+systemctl status ssh --no-pager
+ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+```
+
+Служба `ssh` была запущена (`active (running)`), её запуск при загрузке включён (`enabled`). В Windows подключился по Host-only.
+
+```powershell
+ssh labuser@192.168.56.101
+```
+
+Вход с паролем прошёл. Отпечаток ED25519 из окна Windows совпал с отпечатком ключа в консоли ВМ.
+
+### Межсетевой экран UFW
 
 В консоли VirtualBox установил UFW.
 
@@ -145,4 +147,4 @@ UFW показал `Status: active`, запрет входящих и разре
 ## Примеры конфигурации
 
 - Профиль NetworkManager для `enp0s3` с автоматическим подключением и IPv4 по DHCP. [Файл профиля NAT](configs/virtualbox-nat.nmconnection.example), [справка NetworkManager для Debian](https://manpages.debian.org/trixie/network-manager/nm-settings-keyfile.5.en.html).
-- Конфигурация SSH-клиента для подключения через Host-only. Подставьте в копию файла своё имя вместо `labuser` и запустите `ssh -F configs/ssh-client.conf debianlab` из корня репозитория. [Файл конфигурации SSH](configs/ssh-client.conf).
+- Конфигурация SSH-клиента для подключения через Host-only. Запустите `ssh -F configs/ssh-client.conf debianlab` из корня репозитория. [Файл конфигурации SSH](configs/ssh-client.conf).
