@@ -18,6 +18,17 @@
 | Гостевая ОС | Debian 13.7 (Trixie) |
 | Ресурсы ВМ | 2 vCPU, 5 961 МБ ОЗУ, динамический VDI на 40 ГиБ |
 
+### Выбор программ при установке Debian
+
+Загрузите ВМ с ISO Debian и выберите **Graphical install**. [Запуск установщика Debian](https://www.debian.org/releases/trixie/amd64/ch05s01.en.html).
+
+На экране **Выбор программного обеспечения** (`Software selection`) отметьте два пункта.
+
+- **SSH server** установит OpenSSH Server для подключения из Windows. [Пакет Debian](https://packages.debian.org/trixie/task-ssh-server).
+- **standard system utilities** установит стандартные системные утилиты. [Выбор программ в установщике Debian](https://www.debian.org/releases/trixie/amd64/ch06s03.en.html#pkgsel).
+
+Для графического рабочего стола, как на скриншотах, дополнительно выберите **Debian desktop environment** и **GNOME**. На консольной установке для команд `nmcli` из раздела сети понадобится NetworkManager. [Задача GNOME в Debian](https://packages.debian.org/trixie/task-gnome-desktop).
+
 На установленной ВМ проверил версию в консоли Debian.
 
 ```bash
