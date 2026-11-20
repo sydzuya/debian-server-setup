@@ -21,6 +21,12 @@ cat /etc/debian_version
 
 Команда вернула `13.7`.
 
+### Применимость к Ubuntu Server
+
+Ubuntu основана на Debian и тоже использует APT. Базовые команды из этого проекта для диагностики сети, подключения по SSH, управления пользователями и правами и настройки UFW пригодятся и на Ubuntu Server. [Связь Ubuntu с Debian](https://ubuntu.com/project/docs/how-ubuntu-is-made/processes/merges-and-syncs/), [UFW в Ubuntu Server](https://ubuntu.com/server/docs/firewalls/).
+
+Сетевые интерфейсы в Ubuntu Server обычно настраивают через Netplan. Команды `nmcli` подходят для интерфейсов, которыми управляет NetworkManager. [Настройка сети в Ubuntu Server](https://ubuntu.com/server/docs/configuring-networks/).
+
 ## Сеть VirtualBox
 
 | Адаптер | Интерфейс Debian | IPv4 Debian | Назначение |
