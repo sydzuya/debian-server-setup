@@ -4,6 +4,11 @@
 
 При повторении стенда замените `labuser` на имя своей учётной записи Debian в командах и в копии конфигурации SSH.
 
+## Перед началом
+
+1. Установите на хосте программу виртуализации. Для этого стенда я использовал Oracle VirtualBox в Windows 11. [Скачать VirtualBox с сайта Oracle](https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html).
+2. Скачайте установочный ISO-образ Debian для виртуальной машины. [Скачать Debian с официального сайта](https://www.debian.org/distrib/).
+
 ## Виртуалка
 
 | Параметр | На стенде |
