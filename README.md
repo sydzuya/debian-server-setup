@@ -63,7 +63,7 @@ ip -br addr
 
 ### Диагностика NAT
 
-После подключения второго адаптера SSH по Host-only работал. Проверил маршруты и активные профили NetworkManager в Debian.
+После подключения второго адаптера проверил маршруты и профили NetworkManager в Debian.
 
 ```bash
 ip -4 route
@@ -85,7 +85,7 @@ nmcli connection add type ethernet ifname enp0s3 con-name 'VirtualBox NAT' ipv4.
 wget -4 --spider -T 10 -t 1 https://deb.debian.org/debian/dists/trixie/InRelease
 ```
 
-Сервер вернул `200 OK`. Из Windows также проверил доступность порта `192.168.56.101:22` после настройки NAT.
+Сервер вернул `200 OK`.
 
 ![Маршруты Debian и HTTPS-проверка через NAT](screenshots/nat-routing-https.png)
 
@@ -138,20 +138,29 @@ sudo whoami
 
 ## SSH из Windows
 
-В Debian проверил службу OpenSSH и отпечаток открытого ключа сервера.
+1. **В консоли Debian в VirtualBox** проверьте службу OpenSSH.
 
-```bash
-systemctl status ssh --no-pager
-ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
-```
+   ```bash
+   systemctl status ssh --no-pager
+   ```
 
-Служба `ssh` была запущена (`active (running)`), её запуск при загрузке включён (`enabled`). В Windows подключился по Host-only.
+   На стенде служба была запущена (`active (running)`), а её запуск при загрузке включён (`enabled`).
 
-```powershell
-ssh labuser@192.168.56.101
-```
+2. **В терминале Windows** начните подключение через Host-only.
 
-Вход с паролем прошёл. Отпечаток ED25519 из окна Windows совпал с отпечатком ключа в консоли ВМ.
+   ```powershell
+   ssh labuser@192.168.56.101
+   ```
+
+3. **При первом запросе подтверждения ключа** оставьте терминал Windows открытым. На стенде SSH показал отпечаток `SHA256:…` ключа ED25519. В консоли Debian в VirtualBox получите отпечаток открытого ключа сервера.
+
+   ```bash
+   ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+4. Сравните два отпечатка. При совпадении введите `yes` в терминале Windows, затем пароль своей учётной записи Debian. Приглашение вида `labuser@debianlab:~$` подтверждает, что открылась оболочка Debian.
+
+На стенде вход с паролем прошёл, а отпечаток из Windows совпал с отпечатком из консоли ВМ. После восстановления NAT из Windows также проверил доступность `192.168.56.101:22`.
 
 ### Межсетевой экран UFW
 
