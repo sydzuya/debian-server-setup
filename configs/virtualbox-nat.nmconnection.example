@@ -1,0 +1,13 @@
+[connection]
+id=VirtualBox NAT
+type=ethernet
+interface-name=enp0s3
+autoconnect=true
+
+[ethernet]
+
+[ipv4]
+method=auto
+
+[ipv6]
+method=auto
