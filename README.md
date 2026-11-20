@@ -34,14 +34,7 @@ cat /etc/debian_version
 
 Для повторения в настройках ВМ откройте **Сеть → Адаптер 1**, включите сетевой адаптер, выберите **NAT** и отметьте **Подключить виртуальный кабель**.
 
-На стенде NAT уже стоял на первом адаптере. Проверил это в Windows PowerShell командой `showvminfo` для ВМ `debian`.
-
-```powershell
-& "$env:ProgramFiles\Oracle\VirtualBox\VBoxManage.exe" showvminfo debian --machinereadable |
-    Select-String -Pattern '^(nic[12]|cableconnected[12])='
-```
-
-При первой проверке вывод содержал `nic1="nat"`, `cableconnected1="on"` и `nic2="none"`. В консоли Debian посмотрел IPv4-адреса.
+На стенде сначала был включён только первый адаптер NAT с подключённым виртуальным кабелем. Его IPv4-адрес проверил в консоли Debian.
 
 ```bash
 ip -br -4 addr
