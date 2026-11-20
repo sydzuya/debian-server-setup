@@ -55,18 +55,7 @@ wget -4 --spider -T 10 -t 1 https://deb.debian.org/debian/dists/trixie/InRelease
 
 Сервер вернул `200 OK`. Из Windows также проверил доступность порта `192.168.56.101:22` после настройки NAT.
 
-## Межсетевой экран UFW
-
-Команда `sudo ss -lntup` показала, что процесс `sshd` слушает `22/tcp` на IPv4 и IPv6. В консоли VirtualBox установил UFW и добавил правило для подключения из Windows перед включением фильтра.
-
-```bash
-sudo apt install ufw
-sudo ufw allow in on enp0s8 proto tcp from 192.168.56.1 to any port 22
-sudo ufw enable
-sudo ufw status verbose
-```
-
-UFW показал `Status: active`, запрет входящих и разрешение исходящих соединений по умолчанию. Правило `22/tcp on enp0s8` разрешает входящий SSH с IPv4-адреса Windows `192.168.56.1` через Host-only. После включения UFW я открыл новый SSH-сеанс из Windows и успешно вошёл в Debian.
+![Маршруты Debian и HTTPS-проверка через NAT](screenshots/nat-routing-https.png)
 
 ## Пользователи, группы и права
 
@@ -88,6 +77,8 @@ runuser -u nobody -- ls /srv/admin
 ```
 
 Участник группы создал файл, который получил группу `admin`. При попытке прочитать каталог от имени `nobody` команда `ls` вернула «Отказано в доступе».
+
+![Владелец, группа и права каталога /srv/admin](screenshots/directory-mode.png)
 
 ### Права `sudo` через `visudo`
 
@@ -113,6 +104,32 @@ sudo whoami
 
 Ожидаемый вывод — `root`.
 
+## Межсетевой экран UFW
+
+В консоли VirtualBox установил UFW.
+
+```bash
+sudo apt install ufw
+```
+
+Перед добавлением правила проверил слушающие сокеты командой `sudo ss -lntup`. Процесс `sshd` слушал `22/tcp` на IPv4 и IPv6.
+
+![Слушающие сокеты Debian и порт SSH](screenshots/listening-ports.png)
+
+Добавил правило для подключения из Windows перед включением фильтра.
+
+```bash
+sudo ufw allow in on enp0s8 proto tcp from 192.168.56.1 to any port 22
+sudo ufw enable
+sudo ufw status verbose
+```
+
+UFW показал `Status: active`, запрет входящих и разрешение исходящих соединений по умолчанию. Правило `22/tcp on enp0s8` разрешает входящий SSH с IPv4-адреса Windows `192.168.56.1` через Host-only.
+
+![Активный UFW и правило SSH](screenshots/ufw-status.png)
+
+После включения UFW я открыл новый SSH-сеанс из Windows и успешно вошёл в Debian.
+
 ## Клавиши в терминале Debian
 
 В Bash набери начало команды или пути и нажми `Tab`. Например, `systemct` + `Tab` дополнит команду до `systemctl`. Если совпадений несколько, нажми `Tab` ещё раз, чтобы увидеть варианты.
@@ -129,10 +146,3 @@ sudo whoami
 
 - Профиль NetworkManager для `enp0s3` с автоматическим подключением и IPv4 по DHCP. [Файл профиля NAT](configs/virtualbox-nat.nmconnection.example), [справка NetworkManager для Debian](https://manpages.debian.org/trixie/network-manager/nm-settings-keyfile.5.en.html).
 - Конфигурация SSH-клиента для подключения через Host-only. Подставьте в копию файла своё имя вместо `labuser` и запустите `ssh -F configs/ssh-client.conf debianlab` из корня репозитория. [Файл конфигурации SSH](configs/ssh-client.conf).
-
-## Скриншоты
-
-- [Маршруты Debian и HTTPS-проверка через NAT](screenshots/nat-routing-https.png)
-- [Слушающие сокеты Debian и порт SSH](screenshots/listening-ports.png)
-- [Владелец, группа и права каталога `/srv/admin`](screenshots/directory-mode.png)
-- [Активный UFW и правило SSH](screenshots/ufw-status.png)
