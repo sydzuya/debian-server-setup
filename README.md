@@ -1,19 +1,19 @@
 # debian-server-setup
 
-Учебный стенд для администрирования Debian в VirtualBox. Я подключился к Виртуальной машине (ВМ) по SSH из Windows, проверил выход Debian в интернет и настроил доступ к общему каталогу через группу Linux.
+Базовая настройка Debian в VirtualBox. Я подключился к виртуальной машине (ВМ) по SSH из Windows, проверил выход Debian в интернет и настроил доступ к общему каталогу через группу Linux.
 
 Подробная настройка UFW, перенос SSH на порт `6262` и проверка Fail2ban вынесены в отдельный проект. [UFW Settings](https://github.com/sydzuya/ufw-settings).
 
-При повторении стенда замените `labuser` на имя своей учётной записи Debian в командах и в копии конфигурации SSH.
+В командах и в копии конфигурации SSH замените `youruser` на имя своей учётной записи Debian.
 
 ## Перед началом
 
-1. Установите на хосте программу виртуализации. Для этого стенда я использовал Oracle VirtualBox в Windows 11. [Скачать VirtualBox с сайта Oracle](https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html).
+1. Установите на хосте программу виртуализации. Я использовал Oracle VirtualBox в Windows 11. [Скачать VirtualBox с сайта Oracle](https://www.oracle.com/virtualization/technologies/vm/downloads/virtualbox-downloads.html).
 2. Скачайте установочный ISO-образ Debian для виртуальной машины. [Скачать Debian с официального сайта](https://www.debian.org/distrib/).
 
 ## Виртуалка
 
-| Параметр | На стенде |
+| Параметр | Значение |
 | --- | --- |
 | Хост | Windows 11 |
 | Виртуализация | Oracle VirtualBox |
@@ -52,13 +52,13 @@ Ubuntu основана на Debian и тоже использует APT. Баз
 | 1, NAT | `enp0s3` | `10.0.2.15/24` | Выход в интернет через шлюз `10.0.2.2` |
 | 2, Host-only | `enp0s8` | `192.168.56.101/24` | Подключение по SSH из Windows с адреса `192.168.56.1` |
 
-Адреса и имена интерфейсов в командах относятся к этому стенду.
+Подставьте в команды адреса и имена сетевых интерфейсов из своей конфигурации.
 
 ### Первый адаптер NAT
 
 Для повторения в настройках ВМ откройте **Сеть → Адаптер 1**, включите сетевой адаптер, выберите **NAT** и отметьте **Подключить виртуальный кабель**.
 
-На стенде сначала был включён только первый адаптер NAT с подключённым виртуальным кабелем. Его IPv4-адрес проверил в консоли Debian.
+Сначала на ВМ был включён только первый адаптер NAT с подключённым виртуальным кабелем. Его IPv4-адрес проверил в консоли Debian.
 
 ```bash
 ip -br -4 addr
@@ -114,23 +114,23 @@ wget -4 --spider -T 10 -t 1 https://deb.debian.org/debian/dists/trixie/InRelease
    systemctl status ssh --no-pager
    ```
 
-   На стенде служба была запущена (`active (running)`), а её запуск при загрузке включён (`enabled`).
+   В выводе я увидел, что служба запущена (`active (running)`) и включён автозапуск (`enabled`).
 
 2. **В терминале Windows** начните подключение через Host-only.
 
    ```powershell
-   ssh labuser@192.168.56.101
+   ssh youruser@192.168.56.101
    ```
 
-3. **При первом запросе подтверждения ключа** оставьте терминал Windows открытым. На стенде SSH показал отпечаток `SHA256:…` ключа ED25519. В консоли Debian в VirtualBox получите отпечаток открытого ключа сервера.
+3. **При первом запросе подтверждения ключа** оставьте терминал Windows открытым. SSH показал отпечаток `SHA256:…` ключа ED25519. В консоли Debian в VirtualBox получите отпечаток открытого ключа сервера.
 
    ```bash
    ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
    ```
 
-4. Сравните два отпечатка. При совпадении введите `yes` в терминале Windows, затем пароль своей учётной записи Debian. Приглашение вида `labuser@debianlab:~$` подтверждает, что открылась оболочка Debian.
+4. Сравните два отпечатка. При совпадении введите `yes` в терминале Windows, затем пароль своей учётной записи Debian. Приглашение с именем пользователя и сервера вида `youruser@hostname:~$` подтверждает, что открылась оболочка Debian.
 
-На стенде вход с паролем прошёл, а отпечаток из Windows совпал с отпечатком из консоли ВМ. После восстановления NAT из Windows также проверил доступность `192.168.56.101:22`.
+Вход с паролем прошёл, а отпечаток из Windows совпал с отпечатком из консоли ВМ. После восстановления NAT из Windows также проверил доступность `192.168.56.101:22`.
 
 ### Межсетевой экран UFW
 
@@ -166,7 +166,7 @@ UFW показал `Status: active`, запрет входящих и разре
 
 ```bash
 groupadd admin
-usermod -aG admin labuser
+usermod -aG admin youruser
 install -d -o root -g admin -m 2770 /srv/admin
 ```
 
@@ -175,7 +175,7 @@ install -d -o root -g admin -m 2770 /srv/admin
 Проверка от имени участника группы и от имени системной учётной записи `nobody`.
 
 ```bash
-runuser -u labuser -- touch /srv/admin/access-test.txt
+runuser -u youruser -- touch /srv/admin/access-test.txt
 runuser -u nobody -- ls /srv/admin
 ```
 
@@ -193,10 +193,10 @@ runuser -u nobody -- ls /srv/admin
 visudo
 ```
 
-Пример правила, которое даёт пользователю `labuser` право запускать любые команды через `sudo`.
+Пример правила, которое даёт пользователю `youruser` право запускать любые команды через `sudo`.
 
 ```sudoers
-labuser ALL=(ALL:ALL) ALL
+youruser ALL=(ALL:ALL) ALL
 ```
 
 Из учётной записи с действующим `sudo` редактор открывается командой `sudo visudo`. После сохранения проверьте доступ из обычного сеанса пользователя.
@@ -222,4 +222,4 @@ sudo whoami
 ## Примеры конфигурации
 
 - Профиль NetworkManager для `enp0s3` с автоматическим подключением и IPv4 по DHCP. [Файл профиля NAT](configs/virtualbox-nat.nmconnection.example), [справка NetworkManager для Debian](https://manpages.debian.org/trixie/network-manager/nm-settings-keyfile.5.en.html).
-- Конфигурация SSH-клиента для подключения через Host-only. Запустите `ssh -F configs/ssh-client.conf debianlab` из корня репозитория. [Файл конфигурации SSH](configs/ssh-client.conf).
+- Конфигурация SSH-клиента для подключения через Host-only. Запустите `ssh -F configs/ssh-client.conf debian-server` из корня репозитория. [Файл конфигурации SSH](configs/ssh-client.conf).
