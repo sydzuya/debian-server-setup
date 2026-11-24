@@ -2,7 +2,7 @@
 
 Базовая настройка Debian в VirtualBox. Я подключился к виртуальной машине (ВМ) по SSH из Windows, проверил выход Debian в интернет и настроил доступ к общему каталогу через группу Linux.
 
-Подробная настройка UFW, перенос SSH на порт `6262` и проверка Fail2ban вынесены в отдельный проект. [UFW Settings](https://github.com/sydzuya/ufw-settings).
+Подробная настройка UFW, перенос SSH на порт `6262` и проверка Fail2ban тут. [UFW Settings](https://github.com/sydzuya/ufw-settings).
 
 В командах и в копии конфигурации SSH замените `youruser` на имя своей учётной записи Debian.
 
